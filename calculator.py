@@ -1,8 +1,13 @@
-def add(a: int, b: int) -> int:
-    return a + b
+def lambda_handler(event, context):
+    operation = event.get('operation')
+    a = event.get('a')
+    b = event.get('b')
 
-def sub(a: int, b: int) -> int:
-    return a - b
-
-def mul(a: int, b: int) -> int:
-    return a * b
+    if operation == 'add':
+        return a + b
+    elif operation == 'subtract':
+        return a - b
+    elif operation == 'multiply':
+        return a * b
+    else:
+        return 'Invalid operation'
