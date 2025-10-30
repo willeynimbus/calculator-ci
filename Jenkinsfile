@@ -33,7 +33,7 @@ pipeline {
             steps {
                 echo '🧪 Running unit tests...'
                 sh '''
-                pytest tests --maxfail=1 --disable-warnings -q
+                pytest --maxfail=1 --disable-warnings -q
                 '''
             }
         }
