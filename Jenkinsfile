@@ -7,8 +7,9 @@ pipeline {
     }
 
     environment {
-        AWS_DEFAULT_REGION = 'ap-south-1'
+        AWS_REGION = 'ap-south-1'
         APP_NAME = 'calculator-ci'
+        AWS_CREDENTIALS = credentials('aws-creds')
     }
 
     stages {
@@ -35,6 +36,32 @@ pipeline {
                 sh '''
                 pytest --maxfail=1 --disable-warnings -q
                 '''
+            }
+        }
+
+        stage('Setup SAM CLI'){
+            steps{
+                sh '''
+                    aws configure set aws_access_key_id $AWS_CREDENTIALS_USR
+                    aws configure set aws_secret_access_key $AWS_CREDENTIALS_PSW
+                    aws configure set region $AWS_REGION
+                '''
+            }
+        }
+
+        stage('Deploy to the AWS'){
+            steps{
+                withAWS(credentials: 'aws-creds', region: 'ap-south-1'){
+                    sh '''
+                        sam build
+                        sam deploy --stack-name calculator-stack \
+                                   --template-file template.yaml \
+                                   --capabilities CAPABILITY_IAM \
+                                   --region $AWS_REGION \
+                                   --no-confirm-changeset \
+                                   --resolve-s3
+                    '''
+                }
             }
         }
     }
